@@ -1,4 +1,4 @@
-﻿using mDBMS.Common.Classes;
+﻿using mDBMS.Common.DTOs;
 using mDBMS.Common.Interfaces;
 using System;
 
@@ -16,7 +16,11 @@ namespace mDBMS.FailureRecovery
 			_buffer = new byte[8192]; // 8KB gatau ini hardcod brap
 		}
 		
-        public void WriteLog(ExecutionResult info){}
+        public void WriteLog(ExecutionResult info)
+        {
+            // stub buat fase 1
+            Console.WriteLine($"[STUB FRM]: WriteLog dipanggil untuk kueri '{info.Query}'");
+        }
 
         public void Recover(RecoverCriteria criteria){}
 
