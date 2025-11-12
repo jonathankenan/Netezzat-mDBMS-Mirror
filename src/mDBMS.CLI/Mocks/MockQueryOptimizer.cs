@@ -1,29 +1,23 @@
 using System;
 using System.Collections.Generic;
-using mDBMS.QueryProcessor.Contracts;
+using System.Linq;
+using mDBMS.Common.Interfaces;
+using mDBMS.Common.Models;
 
 namespace mDBMS.CLI.Mocks
 {
     public class MockQueryOptimizer : IQueryOptimizer
     {
-        public ParsedQuery OptimizeQuery(string query)
+        public ISelection ParseQuery(string query)
         {
-            Console.WriteLine($"[MOCK QO]: OptimizeQuery dipanggil dengan '{query}'.");
-            return new ParsedQuery
-            {
-                RawQuery = query,
-                QueryType = "DML",
-                Metadata = new Dictionary<string, string>
-                {
-                    { "info", "dummy plan" }
-                }
-            };
+            Console.WriteLine($"[MOCK QO]: ParseQuery dipanggil dengan '{query}'.");
+            return new TableNode(query);
         }
 
-        public int GetCost(ParsedQuery query)
+        public ISelection OptimizeQuery(ISelection query, IEnumerable<Statistic> statistics)
         {
-            Console.WriteLine("[MOCK QO]: GetCost dipanggil.");
-            return 1;
+            Console.WriteLine($"[MOCK QO]: OptimizeQuery dipanggil. Statistik diterima: {statistics.Count()}.");
+            return query;
         }
     }
 }
