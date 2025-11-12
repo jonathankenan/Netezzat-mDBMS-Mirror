@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using mDBMS.Common.Interfaces;
+using mDBMS.Common.Models;
 using mDBMS.QueryProcessor.Contracts;
 
 namespace mDBMS.QueryProcessor
@@ -9,14 +12,14 @@ namespace mDBMS.QueryProcessor
     public class QueryProcessor
     {
         private readonly IQueryOptimizer _optimizer;
-        private readonly IConcurrencyControlManager _concurrencyControl;
+        private readonly IConcurrencyControl _concurrencyControl;
         private readonly IFailureRecovery _failureRecovery;
 
         private int? _activeTransactionId;
 
         public QueryProcessor(
             IQueryOptimizer optimizer,
-            IConcurrencyControlManager concurrencyControl,
+            IConcurrencyControl concurrencyControl,
             IFailureRecovery failureRecovery)
         {
             _optimizer = optimizer ?? throw new ArgumentNullException(nameof(optimizer));
@@ -54,9 +57,9 @@ namespace mDBMS.QueryProcessor
 
         private ExecutionResult HandleDmlQuery(string query)
         {
-            var parsed = _optimizer.OptimizeQuery(query);
-            var queryType = string.IsNullOrWhiteSpace(parsed.QueryType) ? "DML" : parsed.QueryType;
-            return BuildResult(query, true, $"Query bertipe {queryType} diteruskan ke Query Optimizer.");
+            var parsed = _optimizer.ParseQuery(query);
+            _optimizer.OptimizeQuery(parsed, Enumerable.Empty<Statistic>());
+            return BuildResult(query, true, "Query berhasil diparse dan diteruskan ke Query Optimizer.");
         }
 
         private ExecutionResult HandleBeginTransaction(string query)
@@ -66,7 +69,7 @@ namespace mDBMS.QueryProcessor
                 return BuildResult(query, false, $"Masih ada transaksi aktif dengan ID {_activeTransactionId.Value}.");
             }
 
-            _activeTransactionId = _concurrencyControl.BeginTransaction();
+            _activeTransactionId = _concurrencyControl.begin_transaction();
             return BuildResult(query, true, $"Transaksi baru dimulai dengan ID {_activeTransactionId.Value}.");
         }
 
@@ -78,7 +81,7 @@ namespace mDBMS.QueryProcessor
             }
 
             var transactionId = _activeTransactionId.Value;
-            _concurrencyControl.EndTransaction(transactionId, TransactionStatus.Committed);
+            _concurrencyControl.end_transaction(transactionId);
             _activeTransactionId = null;
             return BuildResult(query, true, $"Transaksi {transactionId} berhasil di-COMMIT.");
         }
@@ -91,7 +94,7 @@ namespace mDBMS.QueryProcessor
             }
 
             var transactionId = _activeTransactionId.Value;
-            _concurrencyControl.EndTransaction(transactionId, TransactionStatus.Aborted);
+            _concurrencyControl.end_transaction(transactionId);
             _activeTransactionId = null;
             return BuildResult(query, true, $"Transaksi {transactionId} berhasil di-ABORT.");
         }

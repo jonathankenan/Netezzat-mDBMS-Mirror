@@ -1,33 +1,41 @@
 using System;
 using System.Threading;
-using mDBMS.QueryProcessor.Contracts;
+using mDBMS.Common.Interfaces;
+using mDBMS.Common.Models;
+using Action = mDBMS.Common.Models.CCM.Action;
+using Response = mDBMS.Common.Models.CCM.Response;
 
 namespace mDBMS.CLI.Mocks
 {
-    public class MockConcurrencyControlManager : IConcurrencyControlManager
+    public class MockConcurrencyControlManager : IConcurrencyControl
     {
         private int _transactionCounter = 1000;
 
-        public int BeginTransaction()
+        public int begin_transaction()
         {
             var id = Interlocked.Increment(ref _transactionCounter);
             Console.WriteLine($"[MOCK CCM]: BeginTransaction dipanggil. ID = {id}");
             return id;
         }
 
-        public ConcurrencyResponse ValidateObject(TransactionAction action)
+        public void log_object(Row @object, int transaction_id)
         {
-            Console.WriteLine($"[MOCK CCM]: ValidateObject dipanggil untuk operasi '{action.Operation}' pada '{action.Target}'.");
-            return new ConcurrencyResponse
+            Console.WriteLine($"[MOCK CCM]: LogObject dipanggil untuk transaksi {transaction_id}.");
+        }
+
+        public Response validate_object(Row @object, int transaction_id, Action action)
+        {
+            Console.WriteLine($"[MOCK CCM]: ValidateObject dipanggil untuk aksi '{action.action}' pada transaksi {transaction_id}.");
+            return new Response
             {
-                Allowed = true,
-                Message = "Selalu diizinkan pada stub."
+                allowed = true,
+                transaction_id = transaction_id
             };
         }
 
-        public void EndTransaction(int transactionId, TransactionStatus status)
+        public void end_transaction(int transaction_id)
         {
-            Console.WriteLine($"[MOCK CCM]: EndTransaction dipanggil. ID = {transactionId}, status = {status}");
+            Console.WriteLine($"[MOCK CCM]: EndTransaction dipanggil. ID = {transaction_id}");
         }
     }
 }
