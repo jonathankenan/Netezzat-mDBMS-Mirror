@@ -8,9 +8,9 @@ namespace mDBMS.Common.DTOs
     /// </summary>
     public class ExecutionResult
     {
-        public string Query { get; set; } = string.Empty;
+        public string Query { get; set; }
         public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
+        public string Message { get; set; }
         public DateTime ExecutedAt { get; set; }
 
         public ExecutionResult()
