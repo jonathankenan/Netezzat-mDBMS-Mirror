@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using mDBMS.Common.Interfaces;
-using mDBMS.Common.Models;
+using mDBMS.Common.Data;
 
 namespace mDBMS.CLI.Mocks
 {
