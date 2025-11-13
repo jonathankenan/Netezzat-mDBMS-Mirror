@@ -33,7 +33,7 @@ namespace mDBMS.CLI
         public Response validate_object(Row @object, int transaction_id, Action action)
         {
             // Tulis pesan debug ke konsol
-            Console.WriteLine($"[MOCK CCM]: validate_object() dipanggil untuk Tx: {transaction_id}, Aksi: {action.action}");
+            Console.WriteLine($"[MOCK CCM]: validate_object() dipanggil untuk Tx: {transaction_id}, Aksi: {action.ActionType}");
 
             // PENTING: Sesuai panduan Fase 1, stub ini harus SELALU MENGIZINKAN.
             // Ini agar pengujian Grup QP dan SM tidak terhambat.
