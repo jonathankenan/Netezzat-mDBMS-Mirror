@@ -44,10 +44,10 @@ namespace mDBMS.CLI
             };
         }
 
-        public void end_transaction(int transaction_id)
+        public void end_transaction(int transaction_id, bool commit)
         {
             // Tulis pesan debug ke konsol
-            Console.WriteLine($"[MOCK CCM]: end_transaction() dipanggil untuk Tx: {transaction_id}.");
+            Console.WriteLine($"[MOCK CCM]: end_transaction() dipanggil untuk Tx: {transaction_id}, Commit: {commit}.");
         }
     }
 }
