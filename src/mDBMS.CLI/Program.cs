@@ -1,9 +1,10 @@
 ﻿using mDBMS.CLI.Mocks;
 using mDBMS.QueryProcessor;
 using mDBMS.Common.Transaction;
+using mDBMS.QueryOptimizer;
 
 var storageManager = new MockStorageManager();
-var optimizer = new MockQueryOptimizer();
+var optimizer = new QueryOptimizerEngine(storageManager);
 var concurrencyControl = new MockConcurrencyControlManager();
 var failureRecovery = new MockFailureRecovery();
 var queryProcessor = new QueryProcessor(storageManager, optimizer, concurrencyControl, failureRecovery);

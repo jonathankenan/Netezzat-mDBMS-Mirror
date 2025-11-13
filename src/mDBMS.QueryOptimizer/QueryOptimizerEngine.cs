@@ -1,6 +1,5 @@
 using mDBMS.Common.Interfaces;
-using mDBMS.QueryOptimizer.Interfaces;
-using mDBMS.QueryOptimizer.Models;
+using mDBMS.Common.QueryData;
 
 namespace mDBMS.QueryOptimizer
 {
@@ -12,9 +11,21 @@ namespace mDBMS.QueryOptimizer
         private readonly IStorageManager _storageManager;
         private readonly CostEstimator _costEstimator;
 
-        public QueryOptimizerEngine(IStorageManager storageManager) {
+        public QueryOptimizerEngine(IStorageManager storageManager)
+        {
             _storageManager = storageManager;
             _costEstimator = new CostEstimator(storageManager);
+        }
+
+        /// <summary>
+        /// Melakukan parsing query string yang diberikan oleh user
+        /// </summary>
+        /// <param name="queryString">String query awal</param>
+        /// <returns>Representasi pohon dari query</returns>
+        public Query ParseQuery(string queryString)
+        {
+            Console.WriteLine($"[STUB QO]: ParseQuery dipanggil untuk kueri '{queryString}'");
+            return new Query();
         }
 
         /// <summary>
@@ -182,5 +193,5 @@ namespace mDBMS.QueryOptimizer
         }
 
         #endregion
-    }  
+    }
 }

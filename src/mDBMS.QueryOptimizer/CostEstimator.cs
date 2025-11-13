@@ -1,6 +1,6 @@
 using mDBMS.Common.Interfaces;
 using mDBMS.Common.Data;
-using mDBMS.QueryOptimizer.Models;
+using mDBMS.Common.QueryData;
 
 namespace mDBMS.QueryOptimizer
 {
@@ -30,7 +30,7 @@ namespace mDBMS.QueryOptimizer
 
             try {
                 var stats = _storageManager.GetStats(step.Table);
-                
+
                 return step.Operation switch {
                     OperationType.TABLE_SCAN => EstimateTableScanCost(stats),
                     OperationType.INDEX_SCAN => EstimateIndexScanCost(stats),
@@ -103,7 +103,7 @@ namespace mDBMS.QueryOptimizer
         /// </summary>
         private double EstimateSortCost(Statistic stats) {
             if (stats.TupleCount == 0) return 0;
-            
+
             double sortComplexity = stats.TupleCount * Math.Log2(stats.TupleCount);
             return sortComplexity * CPU_COST_PER_TUPLE * SORT_COST_MULTIPLIER;
         }
@@ -142,7 +142,7 @@ namespace mDBMS.QueryOptimizer
         public double EstimateSelectivity(string predicate, Statistic stats) {
             // TODO: Perkiraan selectivity yang lebih canggih
             // Untuk sekarang, return selectivity default
-            
+
             if (string.IsNullOrEmpty(predicate))
                 return 1.0; // No filter, semua baris dipilih
 

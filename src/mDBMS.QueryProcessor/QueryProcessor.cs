@@ -59,7 +59,7 @@ namespace mDBMS.QueryProcessor
         private ExecutionResult HandleDmlQuery(string query)
         {
             var parsed = _queryOptimizer.ParseQuery(query);
-            _queryOptimizer.OptimizeQuery(parsed, Enumerable.Empty<Statistic>());
+            _queryOptimizer.OptimizeQuery(parsed);
 
             var upper = query.TrimStart().ToUpperInvariant();
             if (upper.StartsWith("SELECT"))
@@ -90,7 +90,7 @@ namespace mDBMS.QueryProcessor
 
                 return BuildResult(query, true, $"{deleted} row(s) dihapus melalui Storage Manager.");
             }
-            
+
             return BuildResult(query, true, "Query berhasil diparse dan diteruskan ke Query Optimizer.");
         }
 
@@ -148,7 +148,7 @@ namespace mDBMS.QueryProcessor
 
             };
         }
-        
+
         // khusus untuk result select
         private static ExecutionResult BuildResult(string query, bool success, string message, IEnumerable<Row> data)
         {
