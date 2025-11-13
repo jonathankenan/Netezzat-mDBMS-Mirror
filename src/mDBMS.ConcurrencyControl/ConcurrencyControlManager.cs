@@ -64,13 +64,19 @@ public class ConcurrencyControlManager : IConcurrencyControlManager
         Console.WriteLine($"[STUB CCM]: EndTransaction dipanggil untuk transaksi ID {transactionId}.");
         Console.WriteLine($" - Commit: {commit}");
 
-        if (_transactions.TryGetValue(transactionId, out _))
+        if (_transactions.TryGetValue(transactionId, out var status))
         {
             var newStatus = commit ? TransactionStatus.Committed : TransactionStatus.Aborted;
-            _transactions[transactionId] = newStatus;
-
-            Console.WriteLine($" - Status: Transaction {transactionId} {(commit ? "COMMITTED" : "ABORTED")}");
-            return true;
+            if (_transactions.TryUpdate(transactionId, newStatus, status))
+            {
+                Console.WriteLine($" - Status: Transaction {transactionId} {(commit ? "COMMITTED" : "ABORTED")}");
+                return true;
+            }
+            else
+            {
+                Console.WriteLine($"Warning: Failed to update status for transaction {transactionId} due to concurrent modification.");
+                return false;
+            }
         }
 
         Console.WriteLine($"Warning: Transaction {transactionId} not found");
