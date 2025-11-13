@@ -1,8 +1,6 @@
-using System;
-using System.Linq;
+using mDBMS.Common.Transaction;
+using mDBMS.Common.Data;
 using mDBMS.Common.Interfaces;
-using mDBMS.Common.Models;
-using mDBMS.QueryProcessor.Contracts;
 
 namespace mDBMS.QueryProcessor
 {
@@ -12,22 +10,22 @@ namespace mDBMS.QueryProcessor
     public class QueryProcessor
     {
         private readonly IStorageManager _storageManager;
-        private readonly IQueryOptimizer _optimizer;
-        private readonly IConcurrencyControl _concurrencyControl;
-        private readonly IFailureRecovery _failureRecovery;
+        private readonly IQueryOptimizer _queryOptimizer;
+        private readonly IConcurrencyControlManager _concurrencyControlManager;
+        private readonly IFailureRecoveryManager _failureRecoveryManager;
 
         private int? _activeTransactionId;
 
         public QueryProcessor(
             IStorageManager storageManager,
-            IQueryOptimizer optimizer,
-            IConcurrencyControl concurrencyControl,
-            IFailureRecovery failureRecovery)
+            IQueryOptimizer queryOptimizer,
+            IConcurrencyControlManager concurrencyControlManager,
+            IFailureRecoveryManager failureRecoveryManager)
         {
             _storageManager = storageManager ?? throw new ArgumentNullException(nameof(storageManager));
-            _optimizer = optimizer ?? throw new ArgumentNullException(nameof(optimizer));
-            _concurrencyControl = concurrencyControl ?? throw new ArgumentNullException(nameof(concurrencyControl));
-            _failureRecovery = failureRecovery ?? throw new ArgumentNullException(nameof(failureRecovery));
+            _queryOptimizer = queryOptimizer ?? throw new ArgumentNullException(nameof(queryOptimizer));
+            _concurrencyControlManager = concurrencyControlManager ?? throw new ArgumentNullException(nameof(concurrencyControlManager));
+            _failureRecoveryManager = failureRecoveryManager ?? throw new ArgumentNullException(nameof(failureRecoveryManager));
         }
 
         public ExecutionResult ExecuteQuery(string? query)
@@ -60,8 +58,8 @@ namespace mDBMS.QueryProcessor
 
         private ExecutionResult HandleDmlQuery(string query)
         {
-            var parsed = _optimizer.ParseQuery(query);
-            _optimizer.OptimizeQuery(parsed, Enumerable.Empty<Statistic>());
+            var parsed = _queryOptimizer.ParseQuery(query);
+            _queryOptimizer.OptimizeQuery(parsed, Enumerable.Empty<Statistic>());
 
             var upper = query.TrimStart().ToUpperInvariant();
             if (upper.StartsWith("SELECT"))
@@ -103,7 +101,7 @@ namespace mDBMS.QueryProcessor
                 return BuildResult(query, false, $"Masih ada transaksi aktif dengan ID {_activeTransactionId.Value}.");
             }
 
-            _activeTransactionId = _concurrencyControl.begin_transaction();
+            _activeTransactionId = _concurrencyControlManager.BeginTransaction();
             return BuildResult(query, true, $"Transaksi baru dimulai dengan ID {_activeTransactionId.Value}.");
         }
 
@@ -115,7 +113,7 @@ namespace mDBMS.QueryProcessor
             }
 
             var transactionId = _activeTransactionId.Value;
-            _concurrencyControl.end_transaction(transactionId);
+            _concurrencyControlManager.EndTransaction(transactionId, true);
             _activeTransactionId = null;
             return BuildResult(query, true, $"Transaksi {transactionId} berhasil di-COMMIT.");
         }
@@ -128,14 +126,14 @@ namespace mDBMS.QueryProcessor
             }
 
             var transactionId = _activeTransactionId.Value;
-            _concurrencyControl.end_transaction(transactionId);
+            _concurrencyControlManager.EndTransaction(transactionId, false);
             _activeTransactionId = null;
             return BuildResult(query, true, $"Transaksi {transactionId} berhasil di-ABORT.");
         }
 
         private ExecutionResult LogAndReturn(ExecutionResult result)
         {
-            _failureRecovery.WriteLog(result);
+            _failureRecoveryManager.WriteLog(result);
             return result;
         }
 
