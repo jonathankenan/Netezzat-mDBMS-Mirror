@@ -2,10 +2,10 @@ namespace mDBMS.Common.Models;
 
 public class DataDeletion
 {
-    public string Table { get; set; } = string.Empty;
-    public string? Condition { get; set; }
+    public string Table { get; set; }
+    public Condition? Condition { get; set; }
 
-    public DataDeletion(string table, string? condition = null)
+    public DataDeletion(string table, Condition? condition = null)
     {
         Table = table;
         Condition = condition;
