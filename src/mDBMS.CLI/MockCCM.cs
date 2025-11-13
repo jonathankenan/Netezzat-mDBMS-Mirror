@@ -2,6 +2,9 @@ using mDBMS.Common.Interfaces;
 using mDBMS.Common.Models;
 using System;
 
+using Response = mDBMS.Common.Models.CCM.Response;
+using Action = mDBMS.Common.Models.CCM.Action;
+
 namespace mDBMS.CLI
 {
     /// <summary>
@@ -10,13 +13,13 @@ namespace mDBMS.CLI
     /// tanpa harus menunggu Grup CCM selesai.
     /// Sesuai Panduan Tugas Besar, Fase 1, Tugas 5.1 untuk Grup QP.
     /// </summary>
-    public class MockCCM : IConcurrencyControl
+    public class MockCCM : IConcurrencyControlManager
     {
         public int begin_transaction()
         {
             // Tulis pesan debug ke konsol
             Console.WriteLine("[MOCK CCM]: begin_transaction() dipanggil.");
-            
+
             // Kembalikan ID transaksi palsu
             return 12345;
         }
@@ -30,21 +33,21 @@ namespace mDBMS.CLI
         public Response validate_object(Row @object, int transaction_id, mDBMS.Common.Models.CCM.Action action)
         {
             // Tulis pesan debug ke konsol
-            Console.WriteLine($"[MOCK CCM]: validate_object() dipanggil untuk Tx: {transaction_id}, Aksi: {action.action}");
+            Console.WriteLine($"[MOCK CCM]: validate_object() dipanggil untuk Tx: {transaction_id}, Aksi: {action.ActionType}");
 
             // PENTING: Sesuai panduan Fase 1, stub ini harus SELALU MENGIZINKAN.
             // Ini agar pengujian Grup QP dan SM tidak terhambat.
             return new Response
             {
-                allowed = true,
-                transaction_id = transaction_id
+                Allowed = true,
+                TransactionId = transaction_id
             };
         }
 
-        public void end_transaction(int transaction_id)
+        public void end_transaction(int transaction_id, bool commit)
         {
             // Tulis pesan debug ke konsol
-            Console.WriteLine($"[MOCK CCM]: end_transaction() dipanggil untuk Tx: {transaction_id}.");
+            Console.WriteLine($"[MOCK CCM]: end_transaction() dipanggil untuk Tx: {transaction_id}, Commit: {commit}.");
         }
     }
 }
