@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using mDBMS.Common.Interfaces;
 using mDBMS.Common.Models.CCM;
@@ -29,7 +28,7 @@ public class ConcurrencyControlManager : IConcurrencyControlManager
     {
         lock (_lockObject)
         {
-            int transactionId = _nextTransactionId++;
+            int transactionId = Interlocked.Increment(ref _nextTransactionId);
             _transactions.TryAdd(transactionId, TransactionStatus.Active);
 
             Console.WriteLine($"[STUB CCM]: BeginTransaction dipanggil. Transaction ID: {transactionId}");
