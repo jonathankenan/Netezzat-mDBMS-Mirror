@@ -1,5 +1,5 @@
 using mDBMS.Common.Interfaces;
-using mDBMS.Common.Models;
+using mDBMS.Common.Data;
 using mDBMS.QueryOptimizer.Models;
 
 namespace mDBMS.QueryOptimizer
@@ -29,7 +29,7 @@ namespace mDBMS.QueryOptimizer
             // Untuk sekarang, menggunakan basic esimation berdasarkan tipe operasi
 
             try {
-                var stats = _storageManager.GetStats();
+                var stats = _storageManager.GetStats(step.Table);
                 
                 return step.Operation switch {
                     OperationType.TABLE_SCAN => EstimateTableScanCost(stats),
